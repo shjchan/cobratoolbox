@@ -960,6 +960,7 @@ if isfield(options, 'MC') && ~isempty(options.MC)
     if size(options.MC, 1) ~= n + nSp
         if size(options.MC,2) == n + nSp
             options.MC = options.MC';
+            MCmode = MCmode';
         else
             warning('Size of the constraint matrix not correct. Ignore.')
             MCcont = false;

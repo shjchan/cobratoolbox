@@ -55,18 +55,26 @@ cobraOptions = getCobraSolverParamsOptionsForType(problemTypes);
 pSpos = 1;
 % parse the inputs accordingly.
 paramValueInput = false;
-if ~isempty(varArgIn)
-    % Check if we have parameter/value inputs.
+
+% Check if we have parameter/value inputs.
+        
+% Handle the case where `keyForSolverParams` (solver-specific parameters) is an explicit function input argument
+% (which is NOT encouraged when writing cobra functions because the solver-specific parameter
+%  structure as a convention among cobra functions can be inputted as a structure without keyword )
+%
+% If this is the case, detect if it is supplied as a direct input or name-value argument:
+% Order of `keyForSolverParams` in the optional input optArgin (0 if not in there):
+PosSolverParams = 0; 
+% find the position
+idTmp = strcmp(optArgin, keyForSolverParams);
+if any(idTmp)
+    % remove the keyword from optArgin, defaultValues and validator. It will not
+    % be in the output funParams, but integrated into solverVaragin instead
+    optArgin = optArgin(~idTmp);
+    defaultValues = defaultValues(~idTmp);
+    validator = validator(~idTmp);
     
-    % Handle the case where `keyForSolverParams` (solver-specific parameters) is an explicit function input argument 
-    % (which is NOT encouraged when writing cobra functions because the solver-specific parameter 
-    %  structure as a convention among cobra functions can be inputted as a structure without keyword )
-    
-    % If this is the case, detect if it is supplied as a direct input or name-value argument:
-    % Order of `keyForSolverParams` in the optional input optArgin (0 if not in there):
-    PosSolverParams = 0;
-    idTmp = strcmp(optArgin, keyForSolverParams);
-    if any(idTmp)
+    if ~isempty(varArgIn)
         % check if `keyForSolverParams` is supplied as name-value input
         sPInVin = find(cellfun(@(x) ischar(x) && strncmpi(x, keyForSolverParams, length(x)), varArgIn));
         if ~isempty(sPInVin) && numel(sPInVin) ~= numel(varArgIn)
@@ -75,37 +83,33 @@ if ~isempty(varArgIn)
             varArgIn = [varArgIn(1:(sPInVin - 1)), ...
                 varArgIn((sPInVin + 2):end), varArgIn(sPInVin + 1)];
         else
-            % keyword not found in varargin, could still be a direct input. Detected below
+            % keyword not found in varargin, could still be a direct input. Detect below
             PosSolverParams = find(idTmp);
         end
-        % remove the keyword from optArgin, defaultValues and validator. It will not
-        % be in the output funParams, but integrated into solverVaragin instead
-        optArgin = optArgin(~idTmp);
-        defaultValues = defaultValues(~idTmp);
-        validator = validator(~idTmp);
     end
-        
-    for pSpos = 1:numel(varArgIn)
-        if isstruct(varArgIn{pSpos})
-            if pSpos == PosSolverParams && numel(varArgIn) > PosSolverParams  
-                % if PosSolverParams is non-zero and a solver-specific parameter structure is a direct input
-                % Put it as the last argument, as if the standard way of inputting solver-specific parameter structure.
-                % Then continue to see if the next input is a direct input.
-                % If the structure is the last optional input, then no need to change. 
-                % But need to break with the paramValueInput flag on
-                varArgIn = [varArgIn(1:(pSpos - 1)), varArgIn((pSpos + 1):end), varArgIn(pSpos)];
-            else
-                % its a struct, so yes, we do have additional inputs.
-                paramValueInput = true;
-                break;
-            end
-        end
-        if ischar(varArgIn{pSpos}) && (any(strncmpi(varArgIn{pSpos}, optArgin, length(varArgIn{pSpos}))) ...
-                || any(ismember(varArgIn{pSpos}, cobraOptions)))
-            % its a keyword (partial matching supported), so yes, we have paramValue input.
+end
+for pSpos = 1:numel(varArgIn)
+    if isstruct(varArgIn{pSpos})
+        if pSpos == PosSolverParams && numel(varArgIn) > PosSolverParams
+            % if PosSolverParams is non-zero and a solver-specific parameter structure is a direct input
+            % Put it as the last argument, as if the standard way of inputting solver-specific parameter structure.
+            % Then continue to see if the next input is a direct input.
+            % If the structure is the last optional input, then no need to change.
+            % But need to break with the paramValueInput flag on
+            varArgIn = [varArgIn(1:(pSpos - 1)), varArgIn((pSpos + 1):end), varArgIn(pSpos)];
+        elseif numel(validator) < pSpos || ~validator{pSpos}(varArgIn{pSpos})
+            % it is a struct and does not pass the validator for the corresponding positional argument.
+            % So yes, we do have additional inputs.
             paramValueInput = true;
-            break
-        end    
+            break;
+        end
+    end
+    if ~isempty(varArgIn{pSpos}) && ischar(varArgIn{pSpos}) && ...  % ~validator{pSpos}(varArgIn{pSpos}) && ...
+            (any(strncmpi(varArgIn{pSpos}, optArgin, length(varArgIn{pSpos}))) ...
+            || any(ismember(varArgIn{pSpos}, cobraOptions)))
+        % its a keyword (partial matching supported), so yes, we have paramValue input.
+        paramValueInput = true;
+        break
     end
 end
 

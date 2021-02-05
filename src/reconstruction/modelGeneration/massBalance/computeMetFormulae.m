@@ -491,7 +491,7 @@ for jEC = 1:nEC
             LPj.A(end + 1,:) = 0;
             LPj.A(end, (nCol * (jkE - 1) + m + 1):(nCol * jkE)) = 1;
             % rounding to avoid numerical issues on feasibility
-            LPj.b(end + 1) = round(sum(sol(jEC).minIncon.full((nCol * (jkE - 1) + m + 1):(nCol * jkE))), digitRounded);
+            LPj.b(end + 1,:) = round(sum(sol(jEC).minIncon.full((nCol * (jkE - 1) + m + 1):(nCol * jkE))), digitRounded);
         end
         LPj.csense((end + 1):(end + kE)) = 'L';
         

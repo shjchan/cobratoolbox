@@ -28,7 +28,7 @@ function [model] = generateRules(model, printLevel)
     end
     [preParsedGrRules,genes] = preparseGPR(model.grRules);  % preparse all model.grRules
     allGenes =  unique([genes{~cellfun(@isempty,genes)}]); %Get the unique gene list
-    if (~isfield(model, 'genes'))
+    if ~isfield(model, 'genes') || isempty(model.genes) 
         newGenes = allGenes;
     else
 %         C = setdiff(A,B) for vectors A and B, returns the values in A that 

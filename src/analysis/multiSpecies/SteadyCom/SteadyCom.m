@@ -781,9 +781,10 @@ if isfield(options, 'MC') && ~isempty(options.MC)
     else
         MCmode = sparse(size(options.MC,1),size(options.MC,2));
     end
-    if size(options.MC, 1) ~= n + nSp
+    if MCcont && size(options.MC, 1) ~= n + nSp
         if size(options.MC,2) == n + nSp
             options.MC = options.MC';
+            MCmode = MCmode';
         else
             warning('Size of the crowding constraint matrix not correct. Ignore.')
             MCcont = false;
