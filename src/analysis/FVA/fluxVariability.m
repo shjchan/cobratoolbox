@@ -96,7 +96,7 @@ global CBT_LP_PARAMS
 
 optArgin = {     'optPercentage', 'osenseStr',              'rxnNameList', 'printLevel', 'allowLoops', 'method', 'solverParams', 'advind', 'threads', 'heuristics', 'useMtFVA'}; 
 defaultValues = {100,             getObjectiveSense(model), model.rxns,    0,            true,         '2-norm', struct(),       0,       [],         [],           0};
-validator = {@(x) isscalar(x) & isnumeric(x) & x >= 0 & x <= 100, ...  % optPercentage
+validator = {@(x) isscalar(x) & isnumeric(x), ... & x >= 0 & x <= 100, ...  % optPercentage
     @(x) strcmp(x, 'max') | strcmp(x, 'min'), ...  % osenseStr
     @(x) ischar(x) | iscellstr(x), ...  % rxnNameList
     @(x) isscalar(x) & (islogical(x) | isnumeric(x)) & x >= 0, ...  % printLevel

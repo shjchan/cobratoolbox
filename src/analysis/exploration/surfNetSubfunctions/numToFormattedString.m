@@ -13,7 +13,7 @@ function str = numToFormattedString(num, ordMagMin, ordMagMax, nChar, cellOutput
 % OPTIONAL INPUTS:
 %    ordMagMin:   order of magitude below which the formatted string is in scientific notation (default -6, i.e., for values < 1e-6)
 %    ordMagMin:   order of magitude above which the formatted string is in scientific notation (default 8, i.e., for values >= 1e8)
-%    nChar:       number of character in the converted string, excluding the sign (default 8)
+%    nChar:       number of character in the converted string, excluding the sign (minimum 5, default 8)
 %    cellOutput:  true to have the output being a single cell of string if the input `num` is scalar, otherwise a string (default false) 
 %
 % OUTPUT:
