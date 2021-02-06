@@ -563,7 +563,7 @@ if searchQueryTerm
             % print reaction formula
             flux = [];
             if fluxInputExist
-                flux = fluxLocal(id);
+                flux = fluxLocal(r(j));
             end
             fprintf(['%-' num2str(ceil(log10(dispLen2)) + 1) 's  '], '');
             printRxnFormulaLinked(modelLocal, modelLocal.rxns{r(j)}, 1, metNameFlag, flux, nCharBreakReal, selfCallCommand);
